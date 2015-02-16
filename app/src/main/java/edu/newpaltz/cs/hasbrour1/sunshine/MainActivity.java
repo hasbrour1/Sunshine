@@ -1,6 +1,9 @@
 package edu.newpaltz.cs.hasbrour1.sunshine;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -60,11 +63,34 @@ public class MainActivity extends ActionBarActivity {
             startActivity(intent);
             return true;
         }
+        if(id == R.id.action_map){
+            openPreferredLocationInMap();
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }
 
     private void openPreferredLocationInMap(){
+        SharedPreferences sharedPrefs =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        String location = sharedPrefs.getString(
+                getString(R.string.pref_title_display_name),
+                getString(R.string.text_location)
+        );
+
+        Uri geoLocation = Uri.parse("geo:0,0?").buildUpon()
+                .appendQueryParameter("q", location)
+                .build();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(geoLocation);
+
+        if(intent.resolveActivity(getPackageManager()) != null){
+            startActivity(intent);
+        }else{
+            //Log.d(LOG_TAG, "Couldn't call" + location + ",no");
+        }
 
     }
 
