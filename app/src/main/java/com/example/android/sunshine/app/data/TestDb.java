@@ -15,7 +15,13 @@
  */
 package com.example.android.sunshine.app.data;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
+
+import edu.newpaltz.cs.hasbrour1.sunshine.data.WeatherContract;
+import edu.newpaltz.cs.hasbrour1.sunshine.data.WeatherDbHelper;
 
 public class TestDb extends AndroidTestCase {
 
@@ -111,23 +117,43 @@ public class TestDb extends AndroidTestCase {
     public long testLocationTable() {
         // First step: Get reference to writable database
 
+        WeatherDbHelper dbHelper = new WeatherDbHelber(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
         // Create ContentValues of what you want to insert
         // (you can use the createNorthPoleLocationValues if you wish)
-
+        ContentValues testValues = TestUtilities.createNorthPoleLocationValues();
         // Insert ContentValues into database and get a row ID back
-
+        long locationRowId;
+        locationRowId = db.insert(WeatherContract.LocationEntry.TABLE_NAME, null, testValues);
         // Query the database and receive a Cursor back
-
+        assertTrue(locationRowId != -1);
         // Move the cursor to a valid database row
 
         // Validate data in resulting Cursor with the original ContentValues
         // (you can use the validateCurrentRecord function in TestUtilities to validate the
         // query if you like)
 
+        Cursor cursor = db.query(
+                WeatherContract.LocationEntry.TABLE_NAME,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+        );
         // Finally, close the cursor and database
 
+        assertTrue("Error: no Records returned for location query", cursor.moveToFirst());
+
+        TestUtilities.validateCurrentRecord("Error: location query validation failed", cursor, testValues);
+
+        assertFalse("Error: more than one record returned fro location query", cursor.moveToNext());
         // Return the rowId of the inserted location, or "-1" on failure.
-        return -1L;
+        cursor.close();
+        db.close();
+
+        return locationRowId;
     }
 
 
